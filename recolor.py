@@ -2,6 +2,7 @@
 
 from argparse import Namespace, ArgumentParser, BooleanOptionalAction, REMAINDER
 import cv2
+from math import ceil
 
 
 def main(args: Namespace) -> None:
@@ -14,6 +15,10 @@ def main(args: Namespace) -> None:
         # convert both images to HSV
         value_hsv = cv2.cvtColor(value_image, cv2.COLOR_BGR2HSV_FULL)
         color_hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV_FULL)
+
+        print(color_hsv.shape)
+        print(value_hsv.shape)
+        color_hsv = resize_image(color_hsv, value_hsv.shape)
         # trust me it looked like garbage with python's ternary op
         if args.multiply:
             color_hsv[:,:,2] = multiply_value(color_hsv, value_hsv)
@@ -33,6 +38,16 @@ def multiply_value(img1: cv2.Mat, img2: cv2.Mat) -> cv2.Mat:
     Step 3: floor divide by 255 to get them back into unsigned byte range
     """
     return cv2.multiply(img1[:,:,2] * 1., img2[:,:,2] * 1.) // 255
+
+
+def resize_image(image: cv2.Mat, dest_size: tuple):
+    dest_height, dest_width, _ = dest_size
+    # concatenate the image horizontally and vertically x times if it is smaller than the desired output
+    image = cv2.hconcat([image] * ceil(dest_width / image.shape[1]))
+    image = cv2.vconcat([image] * ceil(dest_height / image.shape[0]))
+    # trim it down if it is too large
+    return image[:dest_height, :dest_width]
+
 
 
 def parse_arguments() -> Namespace:
