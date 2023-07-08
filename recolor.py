@@ -3,21 +3,17 @@
 from argparse import Namespace, ArgumentParser, BooleanOptionalAction, REMAINDER
 import cv2
 from math import ceil
+from os import path
 
 
 def main(args: Namespace) -> None:
-    # print(args.images)
-    # print(args.color_image)
-    # print(args.multiply)
     color_image = cv2.imread(args.color_image)
     for filename in args.images:
-        value_image = cv2.imread(filename)
+        value_image = cv2.imread(filename, cv2.IMREAD_UNCHANGED)
         # convert both images to HSV
         value_hsv = cv2.cvtColor(value_image, cv2.COLOR_BGR2HSV_FULL)
         color_hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV_FULL)
-
-        print(color_hsv.shape)
-        print(value_hsv.shape)
+        # fit the output image to the value image size
         color_hsv = resize_image(color_hsv, value_hsv.shape)
         # trust me it looked like garbage with python's ternary op
         if args.multiply:
@@ -25,8 +21,11 @@ def main(args: Namespace) -> None:
         else:
             color_hsv[:,:,2] = value_hsv[:,:,2]
         result = cv2.cvtColor(color_hsv, cv2.COLOR_HSV2BGR_FULL)
-        cv2.imshow('foo', result)
-        cv2.waitKey()
+        if value_image.shape[2] > 3:
+            b, g, r = cv2.split(result)
+            _, _, _, a = cv2.split(value_image)
+            result = cv2.merge((b, g, r, a))
+        cv2.imwrite(path.join(args.output_dir, filename), result)
 
 
 def multiply_value(img1: cv2.Mat, img2: cv2.Mat) -> cv2.Mat:
@@ -65,7 +64,14 @@ def parse_arguments() -> Namespace:
         type=bool,
         default=False,
         action=BooleanOptionalAction,
-        help="Multiply the color image's value by value images' values together instead of replacing it",
+        help="Multiply the two images' values together instead of replacing one with the other",
+    )
+    parser.add_argument(
+        '-o',
+        '--output-dir',
+        type=str,
+        required=True,
+        help='The output directory for results',
     )
     parser.add_argument(
         'images',
