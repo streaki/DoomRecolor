@@ -67,7 +67,8 @@ def resize_image(image: cv2.Mat, dest_size: tuple):
 
 
 def parse_arguments() -> Namespace:
-    parser = ArgumentParser(description='Finds colored shapes')
+    parser = ArgumentParser(description='''Use for fast palette swapping of images.
+Takes the H,S (color) channels of an image and applies them to multiple images.''')
     parser.add_argument(
         '-c',
         '--color-image',
