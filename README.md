@@ -63,7 +63,7 @@ Now, you want a wooden looking version of the `MWALL` patches, and output them t
 You want to preserve the wooden texture along with the monster faces, so instead of overriding the value,
 you pick the `-m` (multiply) option, with brightness correction set to 130, as the input images are pretty dark:
 ```bash
-python3 path/to/recolor.py -c WALL40_1.png -o out -m 130 MWALL4_2.png MWALL5_1.png
+python3 path/to/recolor.py -c WALL40_1.png -o out -m 130 MWALL*.png
 ```
 Here's the woodmarble abominations that it deposits in the `out` directory:
 
