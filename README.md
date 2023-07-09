@@ -2,6 +2,7 @@
 
 A script for quick palette swapping of images.
 Originally intended to use with Doom graphics.
+Requires Python 3 and OpenCV 2 (`opencv-python`) library to run.
 
 ### Usage
 
